@@ -5,7 +5,9 @@
 #include <ctime>   
 using namespace std;
 
-string passGen(bool symbs, bool numbs, int len, bool upper){
+//SE GENERATA PIU' DI UNA PASS, FUNZIONE PER SCEGLIERE LA PIU' SICURA
+
+string passGen(bool symbs, bool numbs, int len, bool upper, bool pin){
     string pass = "";
     for(int i = 0; i < len; i++){
         char c;
@@ -22,11 +24,13 @@ string passGen(bool symbs, bool numbs, int len, bool upper){
                 c = (rand()% (126 - 33 + 1)) + 33;
             }while((c >= 65 && c <= 90) || (c >=48 && c <= 57));
         }
-        else if(numbs){
-            c = rand()%(57-48+1)+48;
+        else if(numbs && !pin){
+            do{
+                c = (rand()% (122 - 48 + 1)) + 48;
+            }while(c >= 58 && c <= 96);
         }
         else if(upper){
-            c = rand()&(90-65+1)+65;
+            c = rand()%(90-65+1)+65;
         }
         else if(upper && symbs){
             do{
@@ -37,6 +41,9 @@ string passGen(bool symbs, bool numbs, int len, bool upper){
             do{
                 c = (rand()% (122 - 48 + 1)) + 48;
             }while((c >= 58 && c <= 64) || (c >=91 && c<=96));
+        }
+        else if(pin){
+            c = rand()%(57-48+1)+48;
         }
         else{
             c = (rand()% (122 - 97 + 1)) + 97;
@@ -78,7 +85,7 @@ string passSec(vector<string>& pass){
 
 int main(){
     srand(time(0));
-    bool symbs, numbs = 0, upper, sec, exit = 0;
+    bool symbs, numbs = 0, upper, sec, exit = 0, pin = 0;
     vector<string> pass;
     int len;
     while(!exit){
@@ -89,13 +96,13 @@ int main(){
 
         do{
             cout << "Vuoi generare un codice PIN?(1 = Y/0 = N)" << endl;
-            cin >> numbs;
-        }while(numbs != 1 && numbs != 0);
+            cin >> pin;
+        }while(pin != 1 && pin != 0);
 
-        if(numbs){
+        if(pin){
             cout << "Generazione Codice PIN" << endl;
-            string pin = passGen(0, 1, len, 0);
-            cout << "Codice PIN: " << pin << endl;
+            string pincode = passGen(0, 1, len, 0, pin);
+            cout << "Codice PIN: " << pincode << endl;
         }
 
         else{
@@ -122,7 +129,7 @@ int main(){
                 }while(sec != 1 && sec != 0);
             }
 
-            pass.push_back(passGen(symbs, numbs, len, upper));
+            pass.push_back(passGen(symbs, numbs, len, upper, 0));
 
             cout << pass[pass.size()-1] << endl;
 
